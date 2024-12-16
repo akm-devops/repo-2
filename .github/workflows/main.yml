@@ -1,18 +1,35 @@
-name: Origin Repository Workflow
+# name: Origin Repository Workflow
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push:
+
+# jobs:
+#   cross-repo-pipeline:
+#     runs-on: ubuntu-latest
+#     steps: #here starts the action's setup
+#       - name: cross-repo-pipeline-trigger
+#         uses: amandastecz/pipeline-trigger@v1.1.1
+#         with:
+#           pat-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }} # add a secret called PAT_TOKEN
+#           owner: akm-devops #changeme
+#           repo: repo-1 #changeme
+
+name: Notify ghidra-ci
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
+  workflow_dispatch:
 
 jobs:
-  cross-repo-pipeline:
-    runs-on: ubuntu-latest
-    steps: #here starts the action's setup
-      - name: cross-repo-pipeline-trigger
-        uses: amandastecz/pipeline-trigger@v1.1.1
-        with:
-          pat-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }} # add a secret called PAT_TOKEN
-          owner: akm-devops #changeme
-          repo: repo-1 #changeme
+  notify:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Create repository dispatch event
+        env:
+          GITHUB_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+        run: |
+          gh api repos/Lockna/ghidra-ci/dispatches \
+              --raw-field event_type=mytrigger
