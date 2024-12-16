@@ -1,0 +1,18 @@
+name: Origin Repository Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+
+jobs:
+  cross-repo-pipeline:
+    runs-on: ubuntu-latest
+    steps: #here starts the action's setup
+      - name: cross-repo-pipeline-trigger
+        uses: amandastecz/pipeline-trigger@v1.1
+        with:
+          pat-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }} # add a secret called PAT_TOKEN
+          owner: akm-devops #changeme
+          repo: repo-1 #changeme
