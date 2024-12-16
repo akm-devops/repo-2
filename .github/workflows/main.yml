@@ -31,5 +31,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
         run: |
-          gh api repos/Lockna/ghidra-ci/dispatches \
+          gh api repos/akm-devops/repo-1/dispatches \
               --raw-field event_type=mytrigger
