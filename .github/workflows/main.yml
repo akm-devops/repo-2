@@ -1,18 +1,39 @@
-name: Origin Repository Workflow
+# name: Origin Repository Workflow
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push:
+
+# jobs:
+#   cross-repo-pipeline:
+#     runs-on: ubuntu-latest
+#     steps: #here starts the action's setup
+#       - name: cross-repo-pipeline-trigger
+#         uses: amandastecz/pipeline-trigger@v1.1.1
+#         with:
+#           pat-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }} # add a secret called PAT_TOKEN
+#           owner: akm-devops #changeme
+#           repo: repo-1 #changeme
+
+name: Notify test-ci
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches:
-      - main
-  push:
+    types:
+      - closed
+
 
 jobs:
-  cross-repo-pipeline:
-    runs-on: ubuntu-latest
-    steps: #here starts the action's setup
-      - name: cross-repo-pipeline-trigger
-        uses: amandastecz/pipeline-trigger@v1.1.1
-        with:
-          pat-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }} # add a secret called PAT_TOKEN
-          owner: akm-devops #changeme
-          repo: repo-1 #changeme
+  notify:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create repository dispatch event
+        env:
+          GITHUB_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+        run: |
+          gh api repos/akm-devops/repo-1/dispatches \
+              --raw-field event_type=custom
