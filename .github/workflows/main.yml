@@ -20,11 +20,15 @@
 name: Notify test-ci
 
 on:
-  push:
   workflow_dispatch:
+  pull_request:
+    types:
+      - closed
+
 
 jobs:
   notify:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - name: Create repository dispatch event
