@@ -19,40 +19,41 @@
 
 name: Notify test-ci
 
-# on:
-#   workflow_dispatch:
-#   pull_request:
-#     types:
-#       - closed
-
-
-# jobs:
-#   notify:
-#     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
-#     runs-on: ubuntu-24.04
-#     steps:
-#       - name: Create repository dispatch event
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
-#         run: |
-#           gh api repos/akm-devops/repo-1/dispatches \
-#               --raw-field event_type=custom
-
-
 on:
+  workflow_dispatch:
   pull_request:
-    types: [opened]
+    types:
+      - opened
+      - closed
+
 
 jobs:
-  thank-user:
-    runs-on: ubuntu-latest
-    name: Say thanks for the PR
+  notify:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event.pull_request.opened == true
+    runs-on: ubuntu-24.04
     steps:
-      - name: comment on the pull request
-        uses: hasura/comment-progress@v2.3.0
-        with:
-          github-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
-          repository: ${{ github.repository }} # "my-org/my-repo"
-          number: ${{ github.event.number }}
-          id: thank-you-comment
-          message: "Thank you for opening this PR :pray:"
+      - name: Create repository dispatch event
+        env:
+          GITHUB_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+        run: |
+          gh api repos/akm-devops/repo-1/dispatches \
+              --raw-field event_type=custom
+
+
+# on:
+#   pull_request:
+#     types: [opened]
+
+# jobs:
+#   thank-user:
+#     runs-on: ubuntu-latest
+#     name: Say thanks for the PR
+#     steps:
+#       - name: comment on the pull request
+#         uses: hasura/comment-progress@v2.3.0
+#         with:
+#           github-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+#           repository: ${{ github.repository }} # "my-org/my-repo"
+#           number: ${{ github.event.number }}
+#           id: thank-you-comment
+#           message: "Thank you for opening this PR :pray:"
