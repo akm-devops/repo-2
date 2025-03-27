@@ -19,14 +19,14 @@
 
 name: Notify test-ci
 
-on:
-  workflow_dispatch:
-  pull_request:
-    types:
-        - opened
-        - edited
-        - reopened
-        - closed
+# on:
+#   workflow_dispatch:
+#   pull_request:
+#     types:
+#         - opened
+#         - edited
+#         - reopened
+#         - closed
 
 
 
@@ -47,22 +47,49 @@ on:
 #   pull_request:
 #     types: [opened]
 
+# jobs:
+#   thank-user:
+#     if: github.event.pull_request.merged == true ||
+#         github.event_name == 'workflow_dispatch' ||
+#         github.event_name == 'repository_dispatch' ||
+#         github.event.action == 'opened' ||
+#         github.event.action == 'edited' ||
+#         github.event.action == 'reopened'
+#     runs-on: ubuntu-latest
+#     name: Say thanks for the PR
+#     steps:
+#       - name: comment on the pull request
+#         uses: hasura/comment-progress@v2.3.0
+#         with:
+#           github-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+#           repository: ${{ github.repository }} # "my-org/my-repo"
+#           number: ${{ github.event.number }}
+#           id: thank-you-comment
+#           message: "Thank you for opening this PR :pray:"
+
+# name: Post JSON Value on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]  # Runs when a PR is opened or updated
+
 jobs:
-  thank-user:
-    if: github.event.pull_request.merged == true ||
-        github.event_name == 'workflow_dispatch' ||
-        github.event_name == 'repository_dispatch' ||
-        github.event.action == 'opened' ||
-        github.event.action == 'edited' ||
-        github.event.action == 'reopened'
+  post-json-value:
     runs-on: ubuntu-latest
-    name: Say thanks for the PR
     steps:
-      - name: comment on the pull request
-        uses: hasura/comment-progress@v2.3.0
-        with:
-          github-token: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
-          repository: ${{ github.repository }} # "my-org/my-repo"
-          number: ${{ github.event.number }}
-          id: thank-you-comment
-          message: "Thank you for opening this PR :pray:"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read value from JSON file
+        id: read_json
+        run: |
+          VALUE_1=$(jq -r '.repo' value_file.json)
+          VALUE_2=$(jq -r '.jira_id' value_file.json)
+          echo "VALUE_1=$VALUE_1" >> $GITHUB_ENV
+          echo "VALUE_2=$VALUE_2" >> $GITHUB_ENV
+
+      - name: Post comment on PR
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_PIPELINE_TRIGGER_PAT_1 }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "The extracted value is: **${VALUE_1}**"
