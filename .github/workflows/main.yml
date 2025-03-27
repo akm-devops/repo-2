@@ -19,12 +19,12 @@
 
 name: Notify test-ci
 
-# on:
-#   workflow_dispatch:
-#   pull_request:
-#     types:
-#       - opened
-#       - closed
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - closed
 
 
 
@@ -41,12 +41,13 @@ name: Notify test-ci
 #               --raw-field event_type=custom
 
 
-on:
-  pull_request:
-    types: [opened]
+# on:
+#   pull_request:
+#     types: [opened]
 
 jobs:
   thank-user:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event.pull_request.opened == true
     runs-on: ubuntu-latest
     name: Say thanks for the PR
     steps:
