@@ -23,8 +23,9 @@ name: Notify test-ci
 #   workflow_dispatch:
 #   pull_request:
 #     types:
-#       - closed
 #       - opened
+#       - closed
+
 
 
 # jobs:
